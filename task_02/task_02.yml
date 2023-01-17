@@ -1,0 +1,16 @@
+- name: localhost
+  hosts: localhost
+  vars:
+    dictionaryData: {}
+  tasks:
+    - name: Read data from file to variable
+      set_fact:
+        data: "{{ lookup('file', 'task_02.txt').split('\n') }}"
+    - name: Put data into Dictionary by looping  each line
+      set_fact:
+        dictionaryData: "{{ dictionaryData | combine(parameter | default({}) | combine({ item.split('=')[0]: item.split('=')[1].split(',') })) }}"
+      with_items: "{{ data }}"
+    - name: Print dictionary to file as nice json
+      copy:
+        dest: output.json
+        content: "{{ dictionaryData | to_nice_json }}"

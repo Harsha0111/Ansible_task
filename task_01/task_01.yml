@@ -1,0 +1,22 @@
+- name: localhost
+  hosts: localhost
+  tasks:
+    - name: Read Data from URL and register in variable
+      uri: 
+        url: "https://raw.githubusercontent.com/akatsukioshiro/test_01/main/task02.json"
+        method: GET
+        status_code: 200
+        return_content: yes
+        body_format: json
+      register: response
+    - name: print
+      debug: 
+        msg: "{{ response.content }}" 
+    - name: Loop through dictionary and generate files from template
+      template: 
+        src: template_file.j2
+        dest: "task01_out_{{ item.name }}"
+      vars: 
+        name: "{{ item.name }}"
+        age: "{{ item.age }}" 
+      with_items: "{{ (response.content | from_json).data }}"
